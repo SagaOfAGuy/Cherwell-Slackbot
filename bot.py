@@ -1,0 +1,98 @@
+import logging
+import os
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+from dotenv import load_dotenv
+from flask import Flask
+from slackeventsapi import SlackEventAdapter
+import re
+
+# Load environment variables
+load_dotenv(".env")
+# Create slack client
+client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
+# Point logging tool to create Log.log file
+logging.basicConfig(filename='./Log.log', level=logging.INFO)
+# Create slack event adapter. 
+slack_event_adapter = SlackEventAdapter(os.getenv("SIGN_SEC"),endpoint="/slack/events")
+# Get the ID of the bot
+BOT_ID = client.api_call("auth.test")['user_id']
+
+# Method to send messages in slack
+def send_msg(channel=None,attachment=None,text=None):
+	try:
+    		result = client.chat_postMessage(
+        		channel=channel,
+				text=text,
+        		attachments=attachment
+    		)
+    		logging.info(result)
+	except SlackApiError as e:
+    		logging.error(f"Error posting message: {e}")
+
+# Listen for messages
+@slack_event_adapter.on("message")
+@slack_event_adapter.on("message.im")
+def message(payload):
+	# Base link for creating IT Support link
+	base_link = os.getenv("BASE_LINK")
+	# Get message payload information
+	event = payload.get('event',{})
+	chan = event.get('channel')
+	user_id = event.get('user')
+	text = event.get('text')
+	
+	# Check if message has 6 digit pattern and return it
+	tick_num = search_digits(text)
+	# Check if 6 digit pattern exists in message. Return true or false
+	has_tick_num = has_digits(text)
+	# Make sure to send only if the previous message was not sent from the bot. Used to prevent infinite loop of messages
+	not_from_bot = user_id != BOT_ID
+	# JSON object for link to Cherwell ticket
+	attachment_json = [
+    {
+        "fallback": "Upgrade your Slack client to use messages like these.",
+        "color": "#4169e1",
+        "blocks": [
+            {
+					"type": "section",
+					"text": {
+						"type": "mrkdwn",
+						"text": f"Cherwell IT Service Management Ticket Hyperlink: {base_link}/{tick_num}"
+					},
+					"accessory": {
+						"type": "button",
+						"text": {
+							"type": "plain_text",
+							"text": "Ticket Link",
+							"emoji": True
+						},
+						"value": "click_me_123",
+						"action_id": "button-action",
+						"url": f"{base_link}/{tick_num}"
+					}
+			},
+        ]
+    }
+    ]
+	# If there is a ticket number and if the last message is not created by the bot
+	if(has_tick_num and not_from_bot):
+		# Send message
+		send_msg(channel=chan,attachment=attachment_json,text="Cherwell IT Ticket Hyperlink")
+
+# Searches message text for 6 digit number	
+def search_digits(text):
+	res = re.search('\d\d\d\d\d\d', text)
+	if(res is not None):
+		return res.group(0)
+
+# Check if there are any digits in text
+def has_digits(text):	
+	res = re.search('\d\d\d\d\d\d', text)
+	if(res is not None):
+		return True
+
+# Main method
+if __name__=="__main__":
+	slack_event_adapter.start(port=5000)
+

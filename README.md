@@ -28,7 +28,7 @@ User@User Ticket-Bot $ pipenv shell
 * Click [here](https://api.slack.com/apps) to view the list of your Slack apps and select your Slack app. Click the Slack app you've created for this project. 
 * Take note of the ***Signing Secret*** as seen below in the App info page:
 
-<img src="./img1.png" height="500" width="500"/>
+<img src="./images/img1.png" height="500" width="500"/>
 
 * Next, go to the **OAUTH & Permissions** tab, and add the following OAUTH scopes under the **Scopes** tab.  
   * ***channels:history***
@@ -36,11 +36,11 @@ User@User Ticket-Bot $ pipenv shell
   * ***groups:history***
 
 
-<img src="./img2.png" height="550" width="500"/>
+<img src="./images/img2.png" height="550" width="500"/>
 
 * After adding these scopes, **Reinstall** the app to the workspace, and take note of the Bot User Token: 
 
-<img src="./img3.png" height="500" width="550"/>
+<img src="./images/img3.png" height="500" width="550"/>
 
 
 
@@ -94,12 +94,12 @@ User@User Ticket-Bot $ cloudflared tunnel --url localhost 5000
 * Navigate to the Slack Apps [homepage](https://api.slack.com/apps), and select your app you used for this project
 * Navigate to the **Event Subscriptions** tab, and paste the Cloudflared Argo tunnel link you retrieved in the previous section into the **Request URL** field: 
 * If everything is working properly, there should be a **Verified** notification near the URL field followed by a ✅ . 
-<img src="./img4.png" height="600" width="850"/>
+<img src="./images/img4.png" height="600" width="850"/>
 
 * Next, add the events **messages.channel** and **message.groups** for the Slackbot to subscribe to:
 
 
-<img src="./img5.png" height="500" width="550"/>
+<img src="./images/img5.png" height="500" width="550"/>
 
 * Reinstall the Slack app if needed. 
 
@@ -108,7 +108,7 @@ User@User Ticket-Bot $ cloudflared tunnel --url localhost 5000
 * Enabling interactive components in our app allows for us to collect user input with the button included in our Cherwell Ticket hyperlink payload. 
 * Navigate to the Slack app [homepage](https://api.slack.com/apps), select your app, and go to the **Interactivity and Shortcuts** tab
 * Turn on **Interactivity & Shortcuts** and Enter the same URL from Cloudflare into the **Request URL** field:
-<img src="./img6.png" height="600" width="650"/>
+<img src="./images/img6.png" height="600" width="650"/>
 
 * If everything is functioning properly, there should be a **Verified** notification near the URL field followed by a ✅ .
 * Click the **Save Changes** button, and reinstall the app if needed.
@@ -117,13 +117,13 @@ User@User Ticket-Bot $ cloudflared tunnel --url localhost 5000
 * Open and sign-in to the Slack App either on Desktop or via browser.
 * Next, type the command `/invite @YourBotName` into the channel you want to add the bot to and press Enter: 
 
-<img src="./img7.png" height="150" width="900"/>
+<img src="./images/img7.png" height="150" width="900"/>
 
 * Now that the bot is added to the channel, as a different user, type text into the channel including a 6-digit ticket number like ```Ticket Bot Test - Ticket # 234211```
 
 If everything is working properly, you should recieve an output similiar to this: 
 
-<img src="./img8.png" height="350" width="900"/>
+<img src="./images/img8.png" height="350" width="900"/>
 
 
 ## **Contributing**
