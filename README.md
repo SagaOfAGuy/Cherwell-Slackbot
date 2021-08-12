@@ -53,9 +53,10 @@ User@User Ticket-Bot $ touch .env
 # Sample output
 1 SIGN_SEC=YourSigningSecret
 2 SLACK_BOT_TOKEN=YourBotToken
-3 BASE_LINK=https://itsupport.vcu.edu/CherwellClient/Access/Incident
+3 BASE_LINK=YourBaseLink
                                                                           
 ```
+* Change BASE_LINK to your liking as the base referral link to tickets is different for each version of Cherwell service management software
 * Save the .env file
 
 ## Run Cloudflare Tunnel
