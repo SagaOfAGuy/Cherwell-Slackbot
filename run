@@ -1,0 +1,5 @@
+#!./slackbot_env/bin/python3
+import os
+if __name__=="__main__":
+    os.system("./bot &>flask.log&")
+    os.system("cloudflared tunnel --url localhost:5000 &> cloudflared.log&")
