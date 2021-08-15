@@ -76,7 +76,7 @@ User@User Ticket-Bot $ touch .env
 # Sample output
 1 SIGN_SEC=YourSigningSecret
 2 SLACK_BOT_TOKEN=YourBotToken
-3 BASE_LINK=CherwellBaseLink
+3 BASE_LINK=YourCherwellBaseLink
                                                                           
 ```
 * Save the .env file
