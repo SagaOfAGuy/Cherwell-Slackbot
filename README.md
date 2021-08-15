@@ -1,4 +1,4 @@
-# Cherwell-Slackbot - Websocket Version 
+# Cherwell-Slackbot - Websocket Version using Slack Bolt Framework
 Slack-bot that listens (using socket mode) in on slack conversation for a user to type in a 6-digit Cherwell service management ticket number, and returns the corresponding hyperlink to said Cherwell ticket. 
 
 ## Requirements
