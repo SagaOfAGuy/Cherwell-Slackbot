@@ -5,7 +5,7 @@ if ! grep -q 'cherbot_env' bot; then
 	envpath='#!'"$(pwd)/cherbot_env/bin/python3"
 	sudo echo -e "$envpath\n$(cat bot)" > bot
 fi
-sudo chmod 777 bot 
+sudo chmod 755 bot 
 
 
 # Copy cherwellbot service file to systemd
