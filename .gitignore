@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 *.log
 *.env
-slackbot_env/
+cherbot_env/
 # C extensions
 *.so
 
