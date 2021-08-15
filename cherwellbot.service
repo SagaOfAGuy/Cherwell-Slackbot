@@ -4,7 +4,6 @@ after=network-online.target
 
 [Service]
 Type=simple
-User=root
 Restart=on-failure
 WorkingDirectory=/opt/Cherwell-Slackbot
 ExecStart=/opt/Cherwell-Slackbot/bot
