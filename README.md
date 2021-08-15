@@ -1,4 +1,4 @@
-# Cherwell-Slackbot
+# Cherwell-Slackbot Websocket Version
 Slack-bot that listens in on slack conversation for a user to type in a 6-digit Cherwell service management ticket number, and returns the corresponding hyperlink to said Cherwell ticket. 
 
 ## Installation
@@ -20,21 +20,13 @@ User@User Cherwell-Slackbot $ python3 -m venv slackbot_env
 ```bash
 (Cherwell-Slackbot) User@User Cherwell-Slackbot $ pip3 list
 
-Package        Version
--------------- -------
-click          7.1.2
-Flask          1.1.4
-itsdangerous   1.1.0
-Jinja2         2.11.3
-MarkupSafe     1.1.1
-pip            20.2.2
-pyee           7.0.4
-python-dotenv  0.19.0
-setuptools     49.1.3
-slack-sdk      3.8.0
-slackeventsapi 2.2.1
-Werkzeug       1.0.1
-
+Package       Version
+------------- -------
+pip           21.2.4
+python-dotenv 0.19.0
+setuptools    49.1.3
+slack-bolt    1.8.0
+slack-sdk     3.9.0
 ```
 
 
@@ -47,7 +39,7 @@ Werkzeug       1.0.1
 * Create a Cloudflared argo tunnel. This enables the Slack app to listen in on Slack channel conversations in real-time. Click [here](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/create-tunnel) for instructions if needed.
 
 
-## Enable and Gather Credentials
+## Generated Bot Token
 * Click [here](https://api.slack.com/apps) to view the list of your Slack apps and select your Slack app. Click the Slack app you've created for this project. 
 * Take note of the ***Signing Secret*** as seen below in the App info page:
 
@@ -65,20 +57,25 @@ Werkzeug       1.0.1
 
 <img src="./images/img3.png"/>
 
+## Generate App Token
+* 
+
 
 
 ## Setting environmental variables
-* Refer back to the **Signing Secret** and the **Bot Token** you created earlier
+* Refer back to the **App Token** and the **Bot Token** you created earlier
 * Navigate to the root of this project, and create a .env file and set these tokens as environment variables:
 ```bash
 User@User Ticket-Bot $ touch .env
 
 # Sample output
-1 SIGN_SEC=YourSigningSecret
+1 SLACK_APP_TOKEN=YourAppToken
 2 SLACK_BOT_TOKEN=YourBotToken
 3 BASE_LINK=YourCherwellBaseLink
                                                                           
 ```
+**Note**: The `BASE_LINK` variable depends on the institution or version of Cherwell that you are using. Double check the URL of an already existing ticket in your version of Cherwell to find the base link. 
+
 * Save the .env file
 
 ## Running the script
