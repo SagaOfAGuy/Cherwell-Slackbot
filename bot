@@ -25,6 +25,21 @@ client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
 logging.basicConfig(filename='./Log.log',level=logging.DEBUG)
 
 
+def has_digits(text):
+    res = re.search('\d\d\d\d\d\d', text)
+    if(res is not None):
+        return True
+
+def search_digits(text):
+    res = re.search('\d\d\d\d\d\d', text)
+    if(res is not None):
+        return res.group(0)
+
+
+
+
+
+
 # React to message in slack workspace
 @app.message(ticket_regex)
 def send_ticket_link(message, context,logger):
@@ -85,6 +100,43 @@ def send_ticket_link(message, context,logger):
         )
     except SlackApiError as e:
         logger.error(f"Error: {e}")
+
+
+# Slack app command that allows posting Cherwell link in DMs. 
+@app.command("/ticket")
+def send_link(ack,respond,command,say):
+    # Acknowledge slack command response
+    ack()
+    # Get the ticket number from user response
+    tick_num = search_digits(command['text'])
+    description = command['text'][6:]
+    if(description == "" or description ==" "):
+        description = "N/A"
+    # Payload to send current slack channel command is invoked in
+    payload={
+        "text": f"Ticket {tick_num}",
+        "response_type": "in_channel",
+        "attachments": [
+            {
+                "color": "#4169e1",
+                "text": f"*Cherwell Service Management*\n*Ticket* {tick_num}\n*Description:* {description}\n*Hyperlink:* {os.getenv('BASE_LINK')}/{tick_num}",
+            }   
+        ]
+    }
+    # If there exists a 6-digit code in the user input
+    if(has_digits(command['text'])):
+        # Send payload to channel
+        respond(payload)
+        # If theres an error, send user an error.
+    else:
+        error_payload = {
+            "response_type": "in_channel",
+            "text": f"{command['text']} is not a valid Cherwell 6-digit ticket code. Please try again in this format: `/ticket 210330 Defective PC`"
+        }
+        # send error payload
+        respond(error_payload)
+
+
 # start app
 if __name__ == "__main__":
     SocketModeHandler(app, os.getenv("SLACK_APP_TOKEN")).start()
