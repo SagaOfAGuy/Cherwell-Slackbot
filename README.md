@@ -69,8 +69,14 @@ slack-sdk     3.9.0
 <img src="./images/image4.png" width="500"/>
 
 ## Enable Sockets Mode
+* Enabling sockets mode allows for our slack app to continously monitor slack channel events without the need of an HTTP endpoint
 * Navigate to the setting **Socket Mode** and enable **Socket Mode**:
 <img src="./images/image5.png" width="500"/>
+
+## Enable Slash Commands
+* The slack app will be able to respond to a slash command called `/ticket` if called by the user
+* Having a slack command allows for users to send a ticket link in DM's where the bot generating the ticket link may not be possible.
+* 
 
 
 ## Setting environmental variables
