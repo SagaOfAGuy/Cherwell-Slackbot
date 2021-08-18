@@ -1,14 +1,11 @@
-
 import os
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from dotenv import load_dotenv
 import re
 from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
 import logging
-
-
-
 
 # Load environmental variables
 load_dotenv(".env")
@@ -24,30 +21,48 @@ client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
 # Create logger
 logging.basicConfig(filename='./Log.log',level=logging.DEBUG)
 
-
+# Returns 6-digit code if it is present within an input string
 def has_digits(text):
     res = re.search('\d\d\d\d\d\d', text)
     if(res is not None):
         return True
 
+# returns whether or not a 6-digit code is present within an input string
 def search_digits(text):
     res = re.search('\d\d\d\d\d\d', text)
     if(res is not None):
         return res.group(0)
 
-
-
-
-
+# get conversation history based on channel ID as an input
+def get_history(c_id):
+    try:
+        # Call the conversations.history method using the WebClient
+        # conversations.history returns the first 100 messages by default
+        # These results are paginated, see: https://api.slack.com/methods/conversations.history$pagination
+        result = client.conversations_history(channel=c_id)
+        conversation_history = result["messages"]
+        logging.info("{} messages found in {}".format(len(conversation_history), id))
+        return conversation_history[0]
+        # Print results
+    except SlackApiError as e:
+        logging.error("Error creating conversation: {}".format(e))
 
 # React to message in slack workspace
 @app.message(ticket_regex)
 def send_ticket_link(message, context,logger):
     # Ticket number if match is found inside of message
     tick_num = context['matches'][0]
+    
     # Channel ID from message
     channel_id = message["channel"]
-    # JSON containing link
+    
+    # Bot user ID
+    BOT_ID = client.api_call("auth.test")['user_id']
+    
+    # User ID of participant in latest message of current slack channel
+    hist = get_history(channel_id)
+        
+    # JSON payload containing link
     attachment= [
 		{
 			"fallback": "Upgrade your Slack client to use messages like these.",
@@ -90,27 +105,35 @@ def send_ticket_link(message, context,logger):
 			]
 		}
 	]
-    # Send JSON data to channel that sent message
-    try:
-        client.chat_postMessage(
-                channel=channel_id,
-                text=f"Cherwell Ticket {tick_num}",
-                attachments=attachment
+    # Check if user ID in previous message is from a bot
+    if(BOT_ID != hist['user']):
+        # if not, then JSON message payload
+        try:
+            client.chat_postMessage(
+                    channel=channel_id,
+                    text=f"Cherwell Ticket {tick_num}",
+                    attachments=attachment
 
-        )
-    except SlackApiError as e:
-        logger.error(f"Error: {e}")
-
+            )
+        # throw error if it fails
+        except SlackApiError as e:
+            logging.error(f"Error: {e}")
 
 # Slack app command that allows posting Cherwell link in DMs. 
 @app.command("/ticket")
 def send_link(ack,respond,command,say):
     # Acknowledge slack command response
     ack()
+    
     # Get the ticket number from user response
     tick_num = search_digits(command['text'])
+
+    # Command parameter input of whatever characters come after the last 6-digit ticket code
     description = command['text'][6:]
+    
+    # If there is no Ticket description string input from the user
     if(description == "" or description ==" "):
+        # set the description itself to N/A
         description = "N/A"
     # Payload to send current slack channel command is invoked in
     payload={
@@ -135,7 +158,6 @@ def send_link(ack,respond,command,say):
         }
         # send error payload
         respond(error_payload)
-
 
 # start app
 if __name__ == "__main__":
