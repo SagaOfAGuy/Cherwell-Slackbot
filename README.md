@@ -76,7 +76,14 @@ slack-sdk     3.9.0
 ## Enable Slash Commands
 * The slack app will be able to respond to a slash command called `/ticket` if called by the user
 * Having a slack command allows for users to send a ticket link in DM's where the bot generating the ticket link may not be possible.
-* 
+* Navigate to the **Slash Commands** setting and create a new slash command: 
+
+<p float="left">
+  <img src="./images/img8.png"  width="475"/>
+  <img src="./images/img9.png" width="475"/>
+</p>
+
+* After creating the command, click the **save** button.
 
 
 ## Setting environmental variables
