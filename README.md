@@ -173,7 +173,7 @@ If everything is working properly, you should recieve an output similiar to this
 Typing `/ticket 230120 Defective PC` will create a ticket hyperlink with a description as seen here: 
 <img src="./images/img10.png">
 
-<img src="./images/img11.png" width="500">
+<img src="./images/img11.png" width="800">
 
 **NOTE**: Not including a description will default to **N/A** for the description field
 
