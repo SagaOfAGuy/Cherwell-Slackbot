@@ -9,6 +9,7 @@ import logging
 
 # Load environmental variables
 load_dotenv(".env")
+
 # initialize app
 app = App(token=os.getenv("SLACK_BOT_TOKEN"))
 
@@ -18,7 +19,7 @@ ticket_regex = re.compile("\d\d\d\d\d\d")
 # slack web client
 client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
 
-# Create logger
+# Create logger and stores log in Log.log file
 logging.basicConfig(filename='./Log.log',level=logging.DEBUG)
 
 # Returns 6-digit code if it is present within an input string
@@ -32,6 +33,10 @@ def search_digits(text):
     res = re.search('\d\d\d\d\d\d', text)
     if(res is not None):
         return res.group(0)
+
+# Get all instances of digits in string input
+def get_all_digits(text):
+    return re.findall('\d\d\d\d\d\d',text)
 
 # get conversation history based on channel ID as an input
 def get_history(c_id):
@@ -47,11 +52,12 @@ def get_history(c_id):
     except SlackApiError as e:
         logging.error("Error creating conversation: {}".format(e))
 
+
 # React to message in slack workspace
 @app.message(ticket_regex)
 def send_ticket_link(message, context,logger):
     # Ticket number if match is found inside of message
-    tick_num = context['matches'][0]
+    tick_num = context['matches']
     
     # Channel ID from message
     channel_id = message["channel"]
@@ -61,73 +67,74 @@ def send_ticket_link(message, context,logger):
     
     # User ID of participant in latest message of current slack channel
     hist = get_history(channel_id)
-        
-    # JSON payload containing link
-    attachment= [
-		{
-			"fallback": "Upgrade your Slack client to use messages like these.",
-			"color": "#4179ef",
-			"blocks": [
-				{
-					"type": "header",
-					"text": {
-						"type": "plain_text",
-						"text": "Cherwell Service Management IT Ticket",
-						"emoji": True
-					}
-				},
-				{
-					"type": "section",
-					"text": {
-						"type": "mrkdwn",
-						"text": f"*Ticket*: {tick_num}\n*Hyperlink*: {os.getenv('BASE_LINK')}/{tick_num}"
-					}
-				},
-				{
-					"type": "divider"
-				},
-				{
-					"type": "actions",
-					"elements": [
-						{
-							"type": "button",
-							"text": {
-								"type": "plain_text",
-								"text": "Ticket Link",
-								"emoji": True
-							},
-							"value": "click_me_123",
-							"action_id": "actionId-0",
-							"url": f"{os.getenv('BASE_LINK')}/{tick_num}"
-						}
-					]
-				}
-			]
-		}
-	]
-    # Check if user ID in previous message is from a bot
+
+    # Send message if the last message is not sent by the bot
     if(BOT_ID != hist['user']):
-        # if not, then JSON message payload
-        try:
-            client.chat_postMessage(
-                    channel=channel_id,
-                    text=f"Cherwell Ticket {tick_num}",
-                    attachments=attachment
-
-            )
-        # throw error if it fails
-        except SlackApiError as e:
-            logging.error(f"Error: {e}")
-
-# Slack app command that allows posting Cherwell link in DMs. 
+        # Iterate through instances of when the user has typed in a 6-digit number
+        for index in range(0,len(tick_num)):
+                    # Payload housing link and message
+                    attachment= [
+                    {
+                        "fallback": "Upgrade your Slack client to use messages like these.",
+                        "color": "#4179ef",
+                        "blocks": [
+                        {
+                            "type": "header",
+                            "text": {
+                                "type": "plain_text",
+                                "text": "Cherwell Service Management IT Ticket",
+                                "emoji": True
+                            }
+                        },
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "mrkdwn",
+                                "text": f"*Ticket*: {tick_num[index]} \n*Hyperlink*: {os.getenv('BASE_LINK')}/{tick_num[index]}"
+                            }
+                        },
+                        {
+                            "type": "divider"
+                        },
+                        {
+                            "type": "actions",
+                            "elements": [
+                            {
+                                "type": "button",
+                                "text": {
+                                    "type": "plain_text",
+                                    "text": "Ticket Link",
+                                    "emoji": True
+                                },
+                                "value": "click_me_123",
+                                "action_id": "actionId-0",
+                                "url": f"{os.getenv('BASE_LINK')}/{tick_num[index]}"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+                    # Send message to channel
+                    try:
+                        client.chat_postMessage(
+                        channel=channel_id,
+                        text=f"Cherwell Ticket {tick_num[index]}",
+                        attachments=attachment
+                    )
+                    # throw error if it fails
+                    except SlackApiError as e:
+                        logging.error(f"Error: {e}")
+	
+# Slack app command that allows posting Cherwell link in Direct Messages or Group Direct Messages 
 @app.command("/ticket")
 def send_link(ack,respond,command,say):
     # Acknowledge slack command response
     ack()
     
     # Get the ticket number from user response
-    tick_num = search_digits(command['text'])
-
+    tick_nums = get_all_digits(command['text'])
+    
     # Command parameter input of whatever characters come after the last 6-digit ticket code
     description = command['text'][6:]
     
